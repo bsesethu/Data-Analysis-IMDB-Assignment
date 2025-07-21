@@ -71,7 +71,7 @@ print(df_res.info())
 print(df_res[['Released_Year', 'Released_Decade']].head()) # It checks out
 
 
-# Create a Lead_Actors column combining Star1, Star2, Star3, Star4.
+# Create a Lead_Actors column combining Star1, Star2, Star3, Star4.                          #NOTE IMPORTANT FUNCTION
 df_res['Lead_Actors'] = df_res[['Star1', 'Star2', 'Star3', 'Star4']].agg(', '.join, axis= 1) # New column, all 4 cell values in one, using aggregate funtion where all values are joined along the columns axis
 print(df_res)
 
@@ -84,37 +84,29 @@ df_res['IMDB_Rating'] = df_res['IMDB_Rating'] * 10
 
 # Bar plot of Genre frequency
     # First need to find the top 10 genre frequency of occurance
-cntDr = 0; cntCr = 0; cntAc = 0; cntAd = 0; cntSc = 0; cntBi = 0; cntHi = 0; cntWe = 0; cntTh = 0
-cntCo = 0; cntRo = 0; cntAn = 0; cntFam = 0; cntWa = 0; cntMu = 0; cntFan = 0; cntMy = 0; cntHo = 0
-
-for row in df_res['Genre']:
-    if 'Drama' in row: cntDr += 1
-    if 'Crime' in row: cntCr += 1 # Not elif because a film may be of more than one genre
-    if 'Action' in row: cntAc += 1
-    if 'Adventure' in row: cntAd += 1
-    if 'Sci-Fi' in row: cntSc += 1
-    if 'Biography' in row: cntBi += 1
-    if 'History' in row: cntHi += 1
-    if 'Western' in row: cntWe += 1
-    if 'Thriller' in row: cntTh += 1
-    if 'Comedy' in row: cntCo += 1
-    if 'Romance' in row: cntRo += 1
-    if 'Animation' in row: cntAn += 1
-    if 'Family' in row: cntFam += 1
-    if 'War' in row: cntWa += 1
-    if 'Music' in row: cntMu += 1
-    if 'Fantasy' in row: cntFan += 1
-    if 'Mystery' in row: cntMy += 1
-    if 'Horror' in row: cntHo += 1
-list_freq = pd.array([cntDr, cntCr, cntAc, cntAd, cntSc, cntBi, cntHi, cntWe, cntTh, cntCo, cntRo, cntAn, cntFam, cntWa, cntMu, cntFan, cntMy, cntHo])        
-list_Genre = pd.array(['Drama','Crime','Action','Adventure','Sci-Fi','Biography','History','Western','Thriller',
-                       'Comedy','Romance','Animation','Family','War','Music','Fantasy','Mystery','Horror'])
-df_Genre = pd.DataFrame({'Film_Genre': list_Genre, 'Frequency': list_freq})
-
+df_Genre_top10 = DaP.genre_Frequencies(df_res) # Applying the function
 # Show only the top 10 by Frequency
-df_Genre.sort_values('Frequency', ascending = False, inplace = True)
-df_Genre_top10 = df_Genre[df_Genre['Frequency'] >= 64] # 64 being the 10th highest value, hence everything below is not important
 print(df_Genre_top10)
-
 # Generating the bar plot
-box = DaV.bar_plot(df_Genre_top10, 'Film_Genre', 'Frequency')
+# box = DaV.bar_plot(df_Genre_top10, 'Film_Genre', 'Frequency')
+
+# Scatter plot of Gross vs. No_of_votes.
+    # First convert Gross to number value
+df_res['Gross'] = df_res['Gross'].str.replace(',', '') # Remove ','
+df_res['Gross'] = pd.to_numeric(df_res['Gross'], errors= 'coerce')
+# print(df_res[df_res['Gross'] > 800e6]) # Just checking
+# scatter = DaV.scatterPlot(df_res, 'Gross', 'No_of_Votes')
+
+# Box plot of IMDB_Rating by Certificate
+df_res['Certificate'].fillna('Unknown', inplace= True) # fil NaN values
+print(df_res.info())
+# box = DaV.boxplots(df_res, 'IMDB_Rating', 'Certificate')
+
+
+# Phase 4: Applied Statistical Analysis
+    # Compute mean, median, std for Gross, No_of_votes, IMDB_Rating.
+print('\nComputed values for mean, median and standard deviation for the following columns:')
+G_mean = round(np.mean(df_res['Gross']), 0)
+G_median = round(np.median(df_res['Gross']), 0)
+G_std = round(np.std(df_res['Gross']), 0)
+print(G_mean, G_median, G_std)

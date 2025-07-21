@@ -72,6 +72,40 @@ class Data_Preperation:
         df_col = pd.DataFrame({'Released_Decade': list1})
         df_res = pd.concat([df, df_col], axis= 1) # Concat the decade column to the main DF
         return df_res
+    
+    # (Function) Find the top 10 film genres by frequency of occurance
+    def genre_Frequencies(df):
+        cntDr = 0; cntCr = 0; cntAc = 0; cntAd = 0; cntSc = 0; cntBi = 0; cntHi = 0; cntWe = 0; cntTh = 0
+        cntCo = 0; cntRo = 0; cntAn = 0; cntFam = 0; cntWa = 0; cntMu = 0; cntFan = 0; cntMy = 0; cntHo = 0
+
+        for row in df['Genre']:
+            if 'Drama' in row: cntDr += 1
+            if 'Crime' in row: cntCr += 1 # Not elif because a film may be of more than one genre
+            if 'Action' in row: cntAc += 1
+            if 'Adventure' in row: cntAd += 1
+            if 'Sci-Fi' in row: cntSc += 1
+            if 'Biography' in row: cntBi += 1
+            if 'History' in row: cntHi += 1
+            if 'Western' in row: cntWe += 1
+            if 'Thriller' in row: cntTh += 1
+            if 'Comedy' in row: cntCo += 1
+            if 'Romance' in row: cntRo += 1
+            if 'Animation' in row: cntAn += 1
+            if 'Family' in row: cntFam += 1
+            if 'War' in row: cntWa += 1
+            if 'Music' in row: cntMu += 1
+            if 'Fantasy' in row: cntFan += 1
+            if 'Mystery' in row: cntMy += 1
+            if 'Horror' in row: cntHo += 1
+        list_freq = pd.array([cntDr, cntCr, cntAc, cntAd, cntSc, cntBi, cntHi, cntWe, cntTh, cntCo, cntRo, cntAn, cntFam, cntWa, cntMu, cntFan, cntMy, cntHo])        
+        list_Genre = pd.array(['Drama','Crime','Action','Adventure','Sci-Fi','Biography','History','Western','Thriller',
+                            'Comedy','Romance','Animation','Family','War','Music','Fantasy','Mystery','Horror'])
+        df_Genre = pd.DataFrame({'Film_Genre': list_Genre, 'Frequency': list_freq})
+        
+        df_Genre.sort_values('Frequency', ascending = False, inplace = True)
+        df_Genre_top10 = df_Genre[df_Genre['Frequency'] >= 64] # 64 being the 10th highest value, hence everything below is not important
+        return df_Genre_top10
+
                     
 class Data_Visualisation:
     # (Function) Create a histogram of column_1 vs column_2 of a dataframe
@@ -98,14 +132,36 @@ class Data_Visualisation:
     
     # (Function) Creating a box plot using DF and column name
     def bar_plot(df, x_column, y_column):
-        plt.bar(df[x_column], df[y_column], color= 'orange')
+        colours = ['red', 'orange', 'yellow']
+        plt.bar(df[x_column], df[y_column], color= colours)
         # ax = sns.countplot(x="Column", data=ds)
 
         # ax.set_xticklabels(ax.get_xticklabels(), fontsize=7)  
         
-        plt.xlabel(x_column, fontsize= 5)
+        plt.xlabel(x_column)
         plt.ylabel('Frequency')
-        plt.title('Box plot of ' + x_column + 'frequency')
+        plt.title('Bar plot of ' + x_column + ' vs frequency')
         
         plt.tight_layout()
+        plt.show()
+        
+    # (Function) Create a scatter plot of one column vs another
+    def scatterPlot(df, column_name1, column_name2): # Specify these characteristics of your skatter plot
+        x = df[column_name1]
+        y = df[column_name2]
+        title_name = 'Skatter plot of ' + column_name1 +  ' vs ' +  column_name2
+
+        plt.scatter(x, y, alpha= 0.7, cmap= 'viridis', marker= '.')
+        plt.xlabel(column_name1)
+        plt.ylabel(column_name2)
+        plt.title(title_name)
+        plt.show()
+        
+    # (Function) Create boxplots of scores by diet quality
+    def boxplots(df, column_1, column_2):
+        sns.boxplot(x= column_1, y= column_2, data= df[[column_1, column_2]])
+        title_str = 'Box Plot of ' + column_1 + ' by ' + column_2
+        plt.title(title_str)
+        plt.xlabel(column_1)
+        plt.ylabel(column_2)
         plt.show()
