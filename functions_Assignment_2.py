@@ -109,7 +109,7 @@ class Data_Preperation:
                     
 class Data_Visualisation:
     # (Function) Create a histogram of column_1 vs column_2 of a dataframe
-    def histogram(df, column1, column2, num_of_bins): # specify these characteristics of your histogram
+    def doubleHistogram(df, column1, column2, num_of_bins): # specify these characteristics of your histogram
         df_col1 = df[column1]
         df_col2 = df[column2]
         title1 = 'Histogram of ' + column1
@@ -130,6 +130,17 @@ class Data_Visualisation:
         plt.grid(True)
         plt.show()
     
+    # (Function) Create a histogram of one of the columns of a dataframe
+    def singleHistogram(df, column_name, num_of_bins, xlabel, ylabel): 
+        study_time = df[column_name]
+        title = 'Histogram of ' + column_name
+        plt.hist(study_time, bins= num_of_bins, color= 'skyblue', edgecolor= 'black')
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.grid(True)
+        plt.show()
+    
     # (Function) Creating a box plot using DF and column name
     def bar_plot(df, x_column, y_column):
         colours = ['red', 'orange', 'yellow']
@@ -139,8 +150,8 @@ class Data_Visualisation:
         # ax.set_xticklabels(ax.get_xticklabels(), fontsize=7)  
         
         plt.xlabel(x_column)
-        plt.ylabel('Frequency')
-        plt.title('Bar plot of ' + x_column + ' vs frequency')
+        plt.ylabel(y_column)
+        plt.title('Bar plot of ' + x_column + ' vs ' + y_column)
         
         plt.tight_layout()
         plt.show()

@@ -5,6 +5,7 @@ from functions_Assignment_2 import Data_Collection as DaC
 from functions_Assignment_2 import Data_Preperation as DaP
 from functions_Assignment_2 import Data_Visualisation as DaV
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Downloading file from kagglehub
 # path = kagglehub.dataset_download("harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows")
@@ -80,7 +81,7 @@ print(df_res)
 # Histogram
 # Convert 'IMDB_Rating' to a comparative rating with 'Meta_score', rating out of 100 not 10
 df_res['IMDB_Rating'] = df_res['IMDB_Rating'] * 10
-# hist = DaV.histogram(df_res, 'IMDB_Rating', 'Meta_score', 24)
+# hist = DaV.doubleHistogram(df_res, 'IMDB_Rating', 'Meta_score', 24)
 
 # Bar plot of Genre frequency
     # First need to find the top 10 genre frequency of occurance
@@ -88,7 +89,7 @@ df_Genre_top10 = DaP.genre_Frequencies(df_res) # Applying the function
 # Show only the top 10 by Frequency
 print(df_Genre_top10)
 # Generating the bar plot
-# box = DaV.bar_plot(df_Genre_top10, 'Film_Genre', 'Frequency')
+# bar = DaV.bar_plot(df_Genre_top10, 'Film_Genre', 'Frequency')
 
 # Scatter plot of Gross vs. No_of_votes.
     # First convert Gross to number value
@@ -109,4 +110,88 @@ print('\nComputed values for mean, median and standard deviation for the followi
 G_mean = round(np.mean(df_res['Gross']), 0)
 G_median = round(np.median(df_res['Gross']), 0)
 G_std = round(np.std(df_res['Gross']), 0)
-print(G_mean, G_median, G_std)
+print(f'Gross; mean: {G_mean}, median: {G_median}, std: {G_std}')
+
+N_mean = round(np.mean(df_res['No_of_Votes']), 0)
+N_median = round(np.median(df_res['No_of_Votes']), 0)
+N_std = round(np.std(df_res['No_of_Votes']), 0)
+print(f'No_of_Votes; mean: {N_mean}, median: {N_median}, std: {N_std}')
+
+I_mean = round(np.mean(df_res['IMDB_Rating']), 1)
+I_median = round(np.median(df_res['IMDB_Rating']), 1)
+I_std = round(np.std(df_res['IMDB_Rating']), 1)
+print(f'IMDB_Rating; mean: {I_mean}, median: {I_median}, std: {I_std}')
+
+# Calculate Pearson correlation between Gross and No_of_votes
+corr = round(df_res['Gross'].corr(df_res['No_of_Votes']), 5) 
+print('\nCorrelation between Gross and No_of_Votes: ', corr)
+
+# Use IQR to identify outliers in Gross
+q1 = np.percentile(df_res['Gross'], 25)
+q3 = np.percentile(df_res['Gross'], 75)
+IQR = q3 - q1
+bound_lower = q1 - (1.5 * IQR)
+bound_upper = q3 + (1.5 * IQR)
+outliers = []
+for row in df_res['Gross']:
+    if row < bound_lower:
+        outliers.append(row)
+    elif row > bound_upper:
+        outliers.append(row)
+print('\nOutliers in the Gross column: ', outliers)
+
+# print(q1, q3)
+# print(bound_lower, bound_upper)
+
+# Check using the function from Ass 1
+# from student_analysis import StudentAnalyser as StA
+# std_Gross = np.std(df_res['Gross'])
+# outs = StA.findOutliers(df_res, 'Gross', std_Gross)
+# print(outs) # It checks out, it's pretty much the same as using IQR
+
+# Phase 5 Advanced Analysis
+    # Director Analysis
+df_directors = df_res.groupby('Director').agg(Sum_Gross= ('Gross', 'sum'), Average_Gross= ('Gross', 'mean'))
+df_dir_sorted = df_directors.sort_values(by= 'Average_Gross', ascending= False)
+print("\nComparing directors' Gross profits:")
+print(df_dir_sorted)
+print('Anthony Russo is the director with the highest average Gross')
+
+# Plot using Bar plot
+df_dir_5 = df_dir_sorted.drop(df_dir_sorted.index[5:]) # Top 5 rows only
+# df_dir_5.to_csv('Director_Gross.csv') #NOTE Done. Now to read it again. We did this to solve the 'KeyError'
+df_5 = pd.read_csv('Director_Gross.csv') # KeyError navigated successfully
+# bar = DaV.bar_plot(df_5, 'Director', 'Average_Gross')
+
+    # Actor analysis
+df_res['IMDB_Rating'] = df_res['IMDB_Rating'] / 10 # Converting column back to original values
+df = (df_res[df_res['IMDB_Rating'] > 8.5])
+df_Actors = df.groupby('Star1').agg(Count_IMDB= ('IMDB_Rating', 'count'))
+df_Actors.sort_values(by= 'Count_IMDB', ascending= False, inplace= True)
+print('\nTop lead actors by IMDB rating above 8.5:')
+print(df_Actors)
+print('Actors Tom Hanks and Elijah Wood each have 3 films in the IMDB count of scores above 8.5')
+
+print('\nGross profit of actor pairs [Star1 + Star2]')
+df_pairs = df_res.groupby(['Star1', 'Star2']).agg(Avg_Gross= ('Gross', 'mean'))
+# df_pairs.to_csv('two_stars.csv')
+df_2Stars = pd.read_csv('two_stars.csv') # Re-loading the df_pairs DF
+# print(df_2Stars.head(30))
+df_2Stars.sort_values(by= 'Avg_Gross', ascending= False, inplace= True)
+print(df_2Stars.head(12))
+# There doesn't seem to be any data that suggests two specific actors working together result in consistently good gross profit figures.
+
+    # Genre preference
+print('\nGenre most associated with high IMDB rating:')
+df_genre = round(df_res.groupby('Genre').agg(Avg_IMDB_Rating= ('IMDB_Rating', 'mean')), 1)
+# df_genre.to_csv('genre_rating.csv')
+df_genre_rating = pd.read_csv('genre_rating.csv') # Re-loaded
+df_genre_rating.sort_values(by= 'Avg_IMDB_Rating', ascending= False, inplace= True)
+df_rating = df_genre_rating[df_genre_rating['Avg_IMDB_Rating'] > 8.2] # Limit the result
+print(df_rating)
+
+    # Heatmap to show genre vs rating trends
+# plt.figure(figsize=(8, 6))
+# sns.heatmap(df_rating['Avg_IMDB_Rating'], annot=df_rating['Genre'], cmap='viridis', fmt=".2f", linewidths=.5)
+# plt.title('Heatmap of Genre vs IMDB_Rating')
+# plt.show()
