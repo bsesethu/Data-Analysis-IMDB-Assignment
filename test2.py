@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+# Copy-paste from Gemini
 # 1. Prepare numeric data
 data = np.random.rand(4, 5) * 100 # Example numeric data
 
